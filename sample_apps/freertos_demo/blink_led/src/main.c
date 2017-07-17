@@ -89,9 +89,9 @@ static void prvBlinkLedTask( void *pvParameters )
     while (1)
     {
         gpio_led_on();
-        os_thread_sleep(os_msec_to_ticks(1000));
+        vTaskDelay(os_msec_to_ticks(1000));
         gpio_led_off();
-        os_thread_sleep(os_msec_to_ticks(1000));
+        vTaskDelay(os_msec_to_ticks(1000));
     }
 }
 
@@ -100,6 +100,8 @@ static void prvBlinkLedTask( void *pvParameters )
 int main(void)
 {
     int ret = 0;
+    TaskHandle_t blinkLEDHandle = NULL;
+    int priority;
 
     /* Initializes console on UART0 */
     ret = wmstdio_init(UART0_ID, 0);
@@ -119,10 +121,25 @@ int main(void)
 
     configure_gpios();
 
-    xTaskCreate(prvBlinkLedTask, "Blink led", ( uint16_t ) BLINK_LED_STACK_SIZE, NULL, ( ( UBaseType_t ) BLINK_LED_TASK_PRIORITY ) | portPRIVILEGE_BIT, NULL);
+    xTaskCreate(prvBlinkLedTask, "Blink led", ( uint16_t ) BLINK_LED_STACK_SIZE, NULL, ( ( UBaseType_t ) BLINK_LED_TASK_PRIORITY ) | portPRIVILEGE_BIT, &blinkLEDHandle);
+    // dump blink led task related information
+    if (NULL != blinkLEDHandle)
+    {
+        priority = uxTaskPriorityGet(blinkLEDHandle);
+        wmprintf("blink led priority is %d\r\n", priority);
+        wmprintf("blink led task name:%s\r\n", pcTaskGetTaskName(blinkLEDHandle));
+    }
+    wmprintf("run blink led task for 30 seconds\r\n");
+    vTaskDelay(30000);
+    wmprintf("delete blink led task\r\n");
+    if (NULL != blinkLEDHandle)
+    {
+        vTaskDelete(blinkLEDHandle);
+        blinkLEDHandle = NULL;
+    }
     while (1)
     {
-        os_thread_sleep(os_msec_to_ticks(1000));
+        vTaskDelay(1000);
     }
     return 0;
 }
