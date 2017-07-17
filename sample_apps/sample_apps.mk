@@ -16,3 +16,4 @@ subdir-y			 += sample_apps/io_demo/ssp/simple/slave_demo
 subdir-y			 += sample_apps/io_demo/i2c/simple/master_demo
 subdir-y			 += sample_apps/io_demo/i2c/simple/slave_demo
 subdir-y                         += sample_apps/wifi_basics
+subdir-y                         += sample_apps/freertos_demo/blink_led
